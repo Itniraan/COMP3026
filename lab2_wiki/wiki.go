@@ -37,7 +37,9 @@ func (p *Page) save() error {
 loadPage function - Loads page from text file in data directory
 */
 func loadPage(title string) (*Page, error) {
+    // Grab the requested file
     fileName := "data/" + title + ".txt"
+    // Read file
     body, err := ioutil.ReadFile(fileName)
     log.Println(fileName)
     if err != nil {
@@ -54,9 +56,11 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
     p, err := loadPage(title)
     log.Println("Viewing " + title)
     if err != nil {
+        // If file doesn't exist, create and open it in edit mode
         http.Redirect(w, r, "/edit/"+title, http.StatusFound)
         return
     }
+    // Output file to view template
     renderTemplate(w, "view", p)
 }
 
@@ -70,6 +74,7 @@ func editHandler(w http.ResponseWriter, r *http.Request, title string) {
     if err != nil {
         p = &Page{Title: title}
     }
+    // Output file to edit template
     renderTemplate(w, "edit", p)
 }
 
@@ -77,6 +82,7 @@ func editHandler(w http.ResponseWriter, r *http.Request, title string) {
 saveHandler function - Handles saving the new wiki page
 */
 func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
+    // Take title and body, save to text file
     body := r.FormValue("body")
     p := &Page{Title: title, Body: []byte(body)}
     err := p.save()
@@ -84,6 +90,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
         http.Error(w, err.Error(), http.StatusInternalServerError)
         return
     }
+    // Redirect to view the file that was just created
     http.Redirect(w, r, "/view/"+title, http.StatusFound)
 }
 
@@ -107,6 +114,7 @@ ie. fn will be either view, edit, or save handler.
 */
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
+        // Check to make sure path matches validPath variable
         m := validPath.FindStringSubmatch(r.URL.Path)
         log.Println(m)
         if m == nil {
@@ -121,6 +129,7 @@ func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.Handl
 renderTemplate function - Executes one of the valid templates (from the templates global variable)
 */
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+    // Load requested template
     err := templates.ExecuteTemplate(w, tmpl+".html", p)
     if err != nil {
         http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -134,6 +143,7 @@ func main() {
     http.HandleFunc("/view/", makeHandler(viewHandler))
     http.HandleFunc("/edit/", makeHandler(editHandler))
     http.HandleFunc("/save/", makeHandler(saveHandler))
+    // Listen on port 8000
     http.ListenAndServe(":8000", nil)
 }
 
