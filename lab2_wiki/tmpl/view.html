@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>{{.Title}} - View</title>
+</head>
+
+<body>
+    
+    <h1>{{.Title}}</h1>
+
+    <p>[<a href="/edit/{{.Title}}">Edit</a>]</p>
+
+    <div>{{printf "%s" .Body}}</div>
+    
+</body>
+
+</html>

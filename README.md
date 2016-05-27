@@ -1,1 +1,1 @@
-# COMP3026
+# COMP3026 Labs and Exercises
